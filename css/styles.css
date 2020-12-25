@@ -2,6 +2,13 @@
     text-align: center;
 }
 
+#buttons {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
 #container {
     height: 400px;
     width: 400px;
@@ -10,6 +17,14 @@
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     border: 6px solid #333333;
+}
+
+#msg {
+    font-size: 30px;
+    margin: 25px auto 0 auto;
+    text-align: center;
+    width: 400px;
+    height: 100px;
 }
 
 .grid {
