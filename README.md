@@ -1,1 +1,1 @@
-This is a basic Tic-Tac-Toe game using Factory Functions and Modules. TEsting
+This is a basic Tic-Tac-Toe game using Factory Functions and Modules. Lesson learned to use SSH Key and not HTTPS to prevent GitHub Login prompt.

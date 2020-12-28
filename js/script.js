@@ -1,8 +1,14 @@
 const gameBoard = (() => {
     const container = document.querySelector('#container');
     const msg = document.querySelector('#msg');
-    const gameMsg = (outcome) => {
-        msg.textContent = `${outcome} has won!`
+    const scoreboard = document.querySelector('#scoreboard');
+    const scoreElems = document.querySelectorAll('.score');
+    const gameMsg = (outcome, visible) => {
+        if (visible === false) {
+            msg.textContent = '';
+        } else {
+            msg.textContent = `${outcome} has won!`
+        }
     }
     const setUp = () => {
         for (let i = 0; i < 9; i++) {
@@ -22,6 +28,7 @@ const player = (symbol, turn) => {
     let boxes = [];
     const sym = symbol;
     let wins = 0;
+    // second game screws up Player 2's array, use dev tools
     const checkWin = () => {
         const winArr = [['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['2', '4', '6'],
         ['0', '3', '6'], ['1', '4', '7'], ['2', '5', '8'], ['0', '4', '8']]
@@ -39,17 +46,27 @@ const displayControl = (() => {
     let pause = false;
     const newGame = document.querySelector('#newGame');
     const players = [player1, player2];
+
     const resetBoard = () => {
         const grids = document.querySelectorAll('.grid');
-        grids.forEach(grid => grid.innerHTML = '');
+        grids.forEach(grid => grid.textContent = '');
+        gameBoard.gameMsg('', false)
         players.forEach(player => {
-            player.boxes = [];
+            // player.boxes = []; doesn't work because it assigns a new []
+            while (player.boxes.length > 0) {
+                player.boxes.pop();
+            }
             if (player.sym === 'X') {
                 player.selected = true;
             } else {
                 player.selected = false;
             }
         })
+        pause = false;
+    }
+
+    const updateScore = () => {
+        console.log('fill')
     }
     // connect player switching here with the player's sym
     gameBoard.container.addEventListener('click', (e) => {

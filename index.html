@@ -4,20 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/styles.css">
     <title>Tic-Tac-Toe</title>
 </head>
 
 <body>
+    <div id='modal'>
+        <div id='modalContent'>
+            <form id="myForm">
+                <h2>Player Names:</h2>
+                <label class='form' for="player1">Player 1</label>
+                <input class='form' placeholder='Player 1' name='player1' type="text">
+
+                <label class='form' for="player2">Player 2</label>
+                <input class='form' placeholder='Player 2' name='player2' type="text">
+
+                <button type='submit' id='submit'>Submit</button>
+                <button id='cancel'>Cancel</button>
+            </form>
+        </div>
+    </div>
     <div id="header">
         <h1> Tic-Tac-Toe </h1>
     </div>
     <div id="buttons">
+        <button id='twoPlayer'>2 Player</button>
         <button id="newGame">New Game</button>
+    </div>
+    <div id='scoreboard'>
+        <div id='playerTurn' class='score'></div>
+        <div id='player1' class='score'></div>
+        <div id='player2' class='score'></div>
     </div>
     <div id="container"></div>
     <div id="msg"></div>
-    <script src="./js/script.js"> </script>
+    <script src="./js/script.js"></script>
+    <script src='./js/modal.js'></script>
 </body>
 
 
