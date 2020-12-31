@@ -1,6 +1,7 @@
 #header {
     text-align: center;
     font-size: 40px;
+    margin-top: 20px;
 }
 
 #modal {
@@ -14,23 +15,31 @@
     background-color: rgba(0, 0, 0, 0.4);
 }
 
+fieldset {
+    margin: 0 auto;
+    width: 90%;
+}
+
 #modalContent {
     position: relative;
-    width: 20%;
+    width: 40%;
     padding: 20px;
     background: white;
     margin: 0 auto;
     top: 45%;
 }
 
+#myForm {
+    padding: 25px;
+}
+
 .form {
     margin: 5px 0 5px 0;
 }
 
-#myForm h2 {
-    font-size: 32px;
+legend {
+    font-size: 30px;
     text-decoration: none;
-    margin-bottom: 20px;
 }
 
 #myForm button {
@@ -48,9 +57,11 @@ button:hover {
 }
 
 #buttons {
+    width: 40%;
     display: flex;
-    margin-top: 35px;
-    margin-bottom: 35px;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    margin: 20px auto;
 }
 
 #container {
@@ -75,6 +86,10 @@ button:hover {
 }
 
 .grid {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
     height: 100%;
     width: 100%;
     background-color: white;

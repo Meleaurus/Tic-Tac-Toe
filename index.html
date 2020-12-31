@@ -12,17 +12,19 @@
 <body>
     <div id='modal'>
         <div id='modalContent'>
-            <form id="myForm">
-                <h2>Player Names:</h2>
-                <label class='form' for="player1">Player 1</label>
-                <input class='form' placeholder='Player 1' name='player1' type="text">
+            <fieldset>
+                <legend>Player Names</legend>
+                <form id="myForm">
+                    <label class='form' for="player1">Player 1</label>
+                    <input class='form' id='player1' placeholder='Player 1' name='player1Name' type="text" required>
 
-                <label class='form' for="player2">Player 2</label>
-                <input class='form' placeholder='Player 2' name='player2' type="text">
+                    <label class='form' for="player2">Player 2</label>
+                    <input class='form' id='player2' placeholder='Player 2' name='player2Name' type="text" required>
 
-                <button type='submit' id='submit'>Submit</button>
-                <button id='cancel'>Cancel</button>
-            </form>
+                    <button type='submit' id='submit'>Submit</button>
+                    <button id='cancel'>Cancel</button>
+                </form>
+            </fieldset>
         </div>
     </div>
     <div id="header">
@@ -34,8 +36,8 @@
     </div>
     <div id='scoreboard'>
         <div id='playerTurn' class='score'></div>
-        <div id='player1' class='score'></div>
-        <div id='player2' class='score'></div>
+        <div id='p1Score' class='score'></div>
+        <div id='p2Score' class='score'></div>
     </div>
     <div id="container"></div>
     <div id="msg"></div>

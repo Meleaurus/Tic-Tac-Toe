@@ -23,9 +23,10 @@ const gameBoard = (() => {
 
 gameBoard.setUp();
 
-const player = (symbol, turn) => {
+const player = (username, symbol, turn) => {
     let selected = turn;
     let boxes = [];
+    const name = username;
     const sym = symbol;
     let wins = 0;
     // second game screws up Player 2's array, use dev tools
@@ -36,21 +37,20 @@ const player = (symbol, turn) => {
         return winArr.some(arr =>
             arr.every(num => boxes.includes(num)))
     }
-    return { boxes, selected, sym, wins, checkWin }
+    return { name, boxes, selected, sym, wins, checkWin }
 }
 
-const player1 = player("X", true);
-const player2 = player("O", false);
-
 const displayControl = (() => {
+    const grids = document.querySelectorAll('.grid');
     let pause = false;
-    const newGame = document.querySelector('#newGame');
-    const players = [player1, player2];
-
+    let allPlayers = [];
     const resetBoard = () => {
-        const grids = document.querySelectorAll('.grid');
         grids.forEach(grid => grid.textContent = '');
         gameBoard.gameMsg('', false)
+        pause = false;
+    }
+    const resetPlayers = (p1, p2) => {
+        const players = [p1, p2]
         players.forEach(player => {
             // player.boxes = []; doesn't work because it assigns a new []
             while (player.boxes.length > 0) {
@@ -62,43 +62,66 @@ const displayControl = (() => {
                 player.selected = false;
             }
         })
-        pause = false;
-    }
-
-    const updateScore = () => {
-        console.log('fill')
     }
     // connect player switching here with the player's sym
-    gameBoard.container.addEventListener('click', (e) => {
-        const box = e.target;
-        if (box.textContent === "") {
-            for (let i = 0; i < players.length; i++) { // change to forEach?
-                const player = players[i];
-                if (player.selected === true && player.checkWin() === false && pause === false) {
-                    player.selected = false;
-                    player.boxes.push(box.id);
-                    box.textContent = player.sym;
-                    player.checkWin();
-                    console.log(player.checkWin())
-                    if (player.checkWin()) {
-                        if (player.sym === 'X') {
-                            gameBoard.gameMsg('Player 1');
-                        } else {
-                            gameBoard.gameMsg('Player 2');
+    const start = () => {
+        gameBoard.container.addEventListener('click', (e) => {
+            // arr here is not changing b/c own scope? players arr
+            const box = e.target;
+            if (box.textContent === "" && box.classList.contains('grid')) {
+                for (let i = 0; i < allPlayers.length; i++) { // change to forEach?
+                    const player = allPlayers[i];
+                    if (player.selected === true && player.checkWin() === false && pause === false) {
+                        player.selected = false;
+                        player.boxes.push(box.id);
+                        box.textContent = player.sym;
+                        player.checkWin();
+                        console.log(player.checkWin())
+                        if (player.checkWin()) {
+                            gameBoard.gameMsg(`${player.name}`);
+                            pause = true
+                            player.wins += 1;
+                        } else if (Array.from(grids).every((grid) => grid.textContent !== '')) {
+                            pause = true;
+                            gameBoard.gameMsg('No one');
                         }
-                        pause = true
-                        player.wins += 1;
-                    } else if (player1.boxes.length + player2.boxes.length === 9) {
-                        pause = true;
-                        gameBoard.gameMsg('No one');
+                    }
+                    else {
+                        player.selected = true;
                     }
                 }
-                else {
-                    player.selected = true;
-                }
             }
-        }
-    });
-    newGame.addEventListener('click', () => resetBoard());
-    // if grid fired mark player 1 symbol, change turn
+        });
+    }
+    return { allPlayers, resetBoard, resetPlayers, start }
 })();
+
+document.querySelector('#myForm').addEventListener('submit', (ev) => {
+    ev.preventDefault(); // prevent refresh
+    //cancel doesnt do anything problem
+    if (ev.submitter.id === 'submit') {
+        if (displayControl.allPlayers.length !== 0) {
+            console.log('cleared')
+            while (displayControl.allPlayers.length > 0) {
+                displayControl.allPlayers.pop();
+            }
+            displayControl.resetBoard();
+        }
+        const newGame = document.querySelector('#newGame');
+        const values = Array.from(myForm.querySelectorAll('#myForm input'))
+            .reduce((acc, input) =>
+                ({ ...acc, [input.id]: input.value }), {})
+        const player1 = player(values.player1, "X", true);
+        const player2 = player(values.player2, "O", false);
+        // new problem, clear mid game if new game chosen
+        displayControl.allPlayers.push(player1);
+        displayControl.allPlayers.push(player2);
+        displayControl.start();
+        // displayControl.startGame(player1, player2);
+        newGame.addEventListener('click', () => {
+            displayControl.resetPlayers(player1, player2)
+            displayControl.resetBoard();
+        });
+    }
+    document.querySelector('#modal').style.display = 'none';
+})
