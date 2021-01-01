@@ -42,6 +42,8 @@ const player = (username, symbol, turn) => {
 
 const displayControl = (() => {
     const grids = document.querySelectorAll('.grid');
+    const p1Score = document.querySelector('#p1Score');
+    const p2Score = document.querySelector('#p2Score');
     let pause = false;
     let allPlayers = [];
     const resetBoard = () => {
@@ -63,15 +65,27 @@ const displayControl = (() => {
             }
         })
     }
+    const updateScore = () => {
+        p1Score.textContent = `${allPlayers[0].name}'s Score: ${allPlayers[0].wins}`;
+        p2Score.textContent = `${allPlayers[1].name}'s Score: ${allPlayers[1].wins}`;
+    }
+    const updateTurn = () => {
+        const playerTurn = document.querySelector('#playerTurn');
+        allPlayers.forEach((p) => {
+            if (p.selected) {
+                playerTurn.textContent = `${p.name}'s turn!`;
+            }
+        })
+    }
     // connect player switching here with the player's sym
     const start = () => {
         gameBoard.container.addEventListener('click', (e) => {
             // arr here is not changing b/c own scope? players arr
             const box = e.target;
-            if (box.textContent === "" && box.classList.contains('grid')) {
+            if (box.textContent === "" && box.classList.contains('grid') && pause === false) {
                 for (let i = 0; i < allPlayers.length; i++) { // change to forEach?
                     const player = allPlayers[i];
-                    if (player.selected === true && player.checkWin() === false && pause === false) {
+                    if (player.selected === true && player.checkWin() === false) {
                         player.selected = false;
                         player.boxes.push(box.id);
                         box.textContent = player.sym;
@@ -81,6 +95,7 @@ const displayControl = (() => {
                             gameBoard.gameMsg(`${player.name}`);
                             pause = true
                             player.wins += 1;
+                            updateScore();
                         } else if (Array.from(grids).every((grid) => grid.textContent !== '')) {
                             pause = true;
                             gameBoard.gameMsg('No one');
@@ -89,11 +104,12 @@ const displayControl = (() => {
                     else {
                         player.selected = true;
                     }
+                    updateTurn();
                 }
             }
         });
     }
-    return { allPlayers, resetBoard, resetPlayers, start }
+    return { allPlayers, resetBoard, resetPlayers, updateScore, updateTurn, start }
 })();
 
 document.querySelector('#myForm').addEventListener('submit', (ev) => {
@@ -108,7 +124,7 @@ document.querySelector('#myForm').addEventListener('submit', (ev) => {
             displayControl.resetBoard();
         }
         const newGame = document.querySelector('#newGame');
-        const values = Array.from(myForm.querySelectorAll('#myForm input'))
+        const values = Array.from(document.querySelectorAll('#myForm input'))
             .reduce((acc, input) =>
                 ({ ...acc, [input.id]: input.value }), {})
         const player1 = player(values.player1, "X", true);
@@ -117,10 +133,13 @@ document.querySelector('#myForm').addEventListener('submit', (ev) => {
         displayControl.allPlayers.push(player1);
         displayControl.allPlayers.push(player2);
         displayControl.start();
+        displayControl.updateScore();
+        displayControl.updateTurn();
         // displayControl.startGame(player1, player2);
         newGame.addEventListener('click', () => {
             displayControl.resetPlayers(player1, player2)
             displayControl.resetBoard();
+            displayControl.updateTurn();
         });
     }
     document.querySelector('#modal').style.display = 'none';
