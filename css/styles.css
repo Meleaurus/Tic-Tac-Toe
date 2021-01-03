@@ -3,7 +3,7 @@
     font-size: 40px;
 }
 
-#modal {
+#modal2p, #modal1p {
     display: none;
     z-index: 1;
     width: 100%;
@@ -21,14 +21,14 @@ fieldset {
     width: 90%;
 }
 
-#modalContent {
+#modalContent2p, #modalContent1p {
     position: relative;
     width: 40%;
     padding: 20px;
     background: white;
 }
 
-#myForm {
+#myForm2p, #myForm1p {
     padding: 25px;
     display: flex;
     flex-flow: column nowrap;
@@ -44,15 +44,14 @@ legend {
     text-decoration: none;
 }
 
-#myForm button {
+#myForm2p button, #myForm1p button {
     width: 20%;
     margin-top: 10px;
     align-self: center;
 }
 
-#submit
-#close {
-    font-size: 10px;
+#submit2p, #cancel2p {
+    font-size: 15px;
 }
 
 button:hover {

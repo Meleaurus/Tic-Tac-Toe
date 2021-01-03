@@ -23,21 +23,22 @@ const gameBoard = (() => {
 
 gameBoard.setUp();
 
-const player = (username, symbol, turn) => {
+const player = (username, symbol, turn, AICheck) => {
+    let isAI = AICheck;
     let selected = turn;
     let boxes = [];
     const name = username;
     const sym = symbol;
     let wins = 0;
     // second game screws up Player 2's array, use dev tools
-    const checkWin = () => {
+    const checkTiles = () => {
         const winArr = [['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['2', '4', '6'],
         ['0', '3', '6'], ['1', '4', '7'], ['2', '5', '8'], ['0', '4', '8']]
         // (implicitly returned) {must return explicitly}
         return winArr.some(arr =>
             arr.every(num => boxes.includes(num)))
     }
-    return { name, boxes, selected, sym, wins, checkWin }
+    return { isAI, name, boxes, selected, sym, wins, checkTiles }
 }
 
 const displayControl = (() => {
@@ -65,10 +66,40 @@ const displayControl = (() => {
             }
         })
     }
+
+    // add easy med hard modes
+    const makeAIMove = (player) => {
+        // pick number from 0-8, check if that grid is empty 
+        // if empty choose another one, else select it while loop?
+        let choosing = true;
+        while (choosing) {
+            let num = Math.floor(Math.random() * 8);
+            if (document.getElementById(`${num}`).textContent === '') {
+                document.getElementById(`${num}`).textContent = 'O';
+                player.boxes.push(`${num}`);
+                choosing = false;
+            }
+        }
+        checkBoard(player);
+    }
+
+    const checkBoard = (player) => {
+        if (player.checkTiles()) {
+            gameBoard.gameMsg(`${player.name}`);
+            pause = true
+            player.wins += 1;
+            updateScore();
+        } else if (Array.from(grids).every((grid) => grid.textContent !== '')) {
+            pause = true;
+            gameBoard.gameMsg('No one');
+        }
+    }
+
     const updateScore = () => {
         p1Score.textContent = `${allPlayers[0].name}'s Score: ${allPlayers[0].wins}`;
         p2Score.textContent = `${allPlayers[1].name}'s Score: ${allPlayers[1].wins}`;
     }
+
     const updateTurn = () => {
         const playerTurn = document.querySelector('#playerTurn');
         allPlayers.forEach((p) => {
@@ -78,30 +109,39 @@ const displayControl = (() => {
         })
     }
     // connect player switching here with the player's sym
-    const start = () => {
+    const start = (isAIMode) => {
         gameBoard.container.addEventListener('click', (e) => {
-            // arr here is not changing b/c own scope? players arr
             const box = e.target;
+            // accomodate AI's move after p1 goes
+            // must make ai move right after player1 move 
+            // so p1 always clicking
+            // fix this
             if (box.textContent === "" && box.classList.contains('grid') && pause === false) {
                 for (let i = 0; i < allPlayers.length; i++) { // change to forEach?
                     const player = allPlayers[i];
-                    if (player.selected === true && player.checkWin() === false) {
-                        player.selected = false;
+                    // when i = 1, do stuff for ai move
+                    if ((player.selected === true || player.isAI === true) && player.checkTiles() === false && pause === false) {
+                        if (!isAIMode) {
+                            player.selected = false;
+                        }
+                        if (player.isAI) {
+                            makeAIMove(player);
+                            break;
+                        }
                         player.boxes.push(box.id);
                         box.textContent = player.sym;
-                        player.checkWin();
-                        console.log(player.checkWin())
-                        if (player.checkWin()) {
-                            gameBoard.gameMsg(`${player.name}`);
-                            pause = true
-                            player.wins += 1;
-                            updateScore();
-                        } else if (Array.from(grids).every((grid) => grid.textContent !== '')) {
-                            pause = true;
-                            gameBoard.gameMsg('No one');
-                        }
+                        // if (player.checkTiles()) {
+                        //     gameBoard.gameMsg(`${player.name}`);
+                        //     pause = true
+                        //     player.wins += 1;
+                        //     updateScore();
+                        checkBoard(player);
+                        // } else if (Array.from(grids).every((grid) => grid.textContent !== '')) {
+                        //     pause = true;
+                        //     gameBoard.gameMsg('No one');
+                        // }
                     }
-                    else {
+                    else if (!isAIMode) {
                         player.selected = true;
                     }
                     updateTurn();
@@ -112,10 +152,9 @@ const displayControl = (() => {
     return { allPlayers, resetBoard, resetPlayers, updateScore, updateTurn, start }
 })();
 
-document.querySelector('#myForm').addEventListener('submit', (ev) => {
-    ev.preventDefault(); // prevent refresh
-    //cancel doesnt do anything problem
-    if (ev.submitter.id === 'submit') {
+document.querySelector('#myForm1p').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    if (ev.submitter.id === 'submit1p') {
         if (displayControl.allPlayers.length !== 0) {
             console.log('cleared')
             while (displayControl.allPlayers.length > 0) {
@@ -124,15 +163,47 @@ document.querySelector('#myForm').addEventListener('submit', (ev) => {
             displayControl.resetBoard();
         }
         const newGame = document.querySelector('#newGame');
-        const values = Array.from(document.querySelectorAll('#myForm input'))
+        const values = Array.from(document.querySelectorAll('#myForm1p input'))
             .reduce((acc, input) =>
-                ({ ...acc, [input.id]: input.value }), {})
+                ({ ...acc, [input.id]: input.value }), {});
+        const player1 = player(values.singleName, 'X', true, false);
+        const AI = player('AI', 'O', false, true);
+        displayControl.allPlayers.push(player1);
+        displayControl.allPlayers.push(AI);
+        displayControl.start(true);
+        displayControl.updateScore()
+        displayControl.updateTurn();
+        newGame.addEventListener('click', () => {
+            displayControl.resetPlayers(player1, AI);
+            displayControl.resetBoard();
+            displayControl.updateTurn();
+        });
+    }
+    document.querySelector('#modal1p').style.display = 'none';
+});
+
+document.querySelector('#myForm2p').addEventListener('submit', (ev) => {
+    // future project to create my own validator instead of required and alert
+    ev.preventDefault(); // prevent refresh
+    //cancel doesnt do anything problem
+    if (ev.submitter.id === 'submit2p') {
+        if (displayControl.allPlayers.length !== 0) {
+            console.log('cleared')
+            while (displayControl.allPlayers.length > 0) {
+                displayControl.allPlayers.pop();
+            }
+            displayControl.resetBoard();
+        }
+        const newGame = document.querySelector('#newGame');
+        const values = Array.from(document.querySelectorAll('#myForm2p input'))
+            .reduce((acc, input) =>
+                ({ ...acc, [input.id]: input.value }), {});
         const player1 = player(values.player1, "X", true);
         const player2 = player(values.player2, "O", false);
         // new problem, clear mid game if new game chosen
         displayControl.allPlayers.push(player1);
         displayControl.allPlayers.push(player2);
-        displayControl.start();
+        displayControl.start(false);
         displayControl.updateScore();
         displayControl.updateTurn();
         // displayControl.startGame(player1, player2);
@@ -142,5 +213,5 @@ document.querySelector('#myForm').addEventListener('submit', (ev) => {
             displayControl.updateTurn();
         });
     }
-    document.querySelector('#modal').style.display = 'none';
+    document.querySelector('#modal2p').style.display = 'none';
 })
